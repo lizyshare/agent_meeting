@@ -6,6 +6,17 @@ pip install funasr
 
 python main.py
 
+## 结果展示
+
+语音转文字完成，内容长度: 2212, 耗时: 12.13秒
+开始文本预处理...
+Processing chunk 1/1...
+预处理完成, 耗时: 474.89秒
+开始生成会议摘要...
+摘要生成完成!, 耗时: 95.23秒
+开始生成会议介绍...
+会议介绍生成完成!, 耗时: 98.81秒
+
 # 子模块运行
 python .\meeting\asr.py
 python .\meeting\preprocess.py 
