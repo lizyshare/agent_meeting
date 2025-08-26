@@ -1,0 +1,15 @@
+{
+  "subject": "李志勇算法岗位电话面试",
+  "date": "2025-08-26",
+  "participants": [
+    "李志勇"
+  ],
+  "tasks": [
+    {
+      "id": 1,
+      "topic": "进行算法岗位电话初步筛选",
+      "reporter": ""
+    }
+  ],
+  "decisions": []
+}

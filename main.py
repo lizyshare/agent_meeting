@@ -1,27 +1,72 @@
-from funasr import AutoModel
+# main.py
+import json
+from meeting.preprocess import preprocess_text
+from meeting.summary import generate_summary
+from meeting.introduction import generate_intro
+from meeting.asr import audio_to_text
 
-model = AutoModel(model="paraformer-zh", model_revision="v2.0.4",
-                  vad_model="fsmn-vad", vad_model_revision="v2.0.4",
-                  punc_model="ct-punc-c", punc_model_revision="v2.0.4",
-                  spk_model="cam++", spk_model_revision="v2.0.2",
-                  )
+def main():
+    # 1. 语音转文字（示例：处理音频文件）
+    try:
+        print("开始语音转文字...")
+        meeting_text = audio_to_text("dataset/interview.m4a")  # 调用asr模块
+        print(f"语音转文字完成，内容长度: {len(meeting_text)}")
+        # 将生成的文本保存到文件
+        meeting_text_file = "output/meeting_text.txt"
+        with open(meeting_text_file, 'w', encoding='utf-8') as f:
+            f.write(meeting_text)
+    except Exception as e:
+        print(f"语音转文字失败: {e}")
+        return
 
-res = model.generate(input="dataset/interview.m4a", 
-            batch_size_s=300, 
-            hotword='')
+    # 2. 预处理文本
 
-if 'sentence_info' in res[0]:
-    for sentence in res[0]['sentence_info']:
-        # 提取开始时间（秒）并转换为MM:SS格式
-        start_seconds_ms = sentence['start']
-        start_seconds = start_seconds_ms / 1000.0
-        minutes = int(start_seconds // 60)
-        seconds = int(start_seconds % 60)
-        timestamp = f"{minutes:02d}:{seconds:02d}"
-        
-        # print(f"{timestamp} 发言人{sentence['spk']}: {sentence['text']}")
-        # 将对话内容写入txt文件
-        with open('dataset/interview.txt', 'a', encoding='utf-8') as f:
-            f.write(f"{timestamp} 发言人{sentence['spk']}: {sentence['text']}\n")
-else:
-    print("未检测到说话人信息，请检查：\n1. 模型配置是否包含spk_embed_postnet设置\n2. 音频是否包含多人对话")
+    try:
+        print("开始文本预处理...")
+        processed_text = preprocess_text(
+            meeting_text=meeting_text,
+            chunk_size=120  # 可自定义分块大小
+        )
+        print("预处理完成")
+        # 将处理后的文本保存到文件
+        processed_text_file = "output/processed_text.txt"
+        with open(processed_text_file, 'w', encoding='utf-8') as f:
+            f.write(processed_text)
+    except Exception as e:
+        print(f"预处理失败: {e}")
+        return
+
+    # 3. 生成会议摘要
+
+    try:
+        print("开始生成会议摘要...")
+        summary = generate_summary(
+            meeting_text=processed_text,
+            interval_minutes=30  # 时间间隔
+        )
+        print("摘要生成完成!")
+        summary_file = "output/summary_text.txt"
+        with open(summary_file, 'w', encoding='utf-8') as f:
+            f.write(json.dumps(summary, ensure_ascii=False, indent=2))
+    except Exception as e:
+        print(f"摘要生成失败: {e}")
+        return
+
+    # 4. 生成会议介绍
+
+    try:
+        print("开始生成会议介绍...")
+        intro = generate_intro(
+            meeting_text=processed_text,
+            time_interval=25  # 章节间隔
+        )
+        print("会议介绍生成完成!")
+        intro_file = "output/introduction_text.txt"
+        with open(intro_file, 'w', encoding='utf-8') as f:
+            f.write(json.dumps(intro, ensure_ascii=False, indent=2))
+    except Exception as e:
+        print(f"会议介绍生成失败: {e}")
+        return
+
+if __name__ == "__main__":
+    main()

@@ -5,3 +5,18 @@ pip install funasr
 # 执行命令
 
 python main.py
+
+# 子模块运行
+python .\meeting\asr.py
+python .\meeting\preprocess.py 
+python .\meeting\introduction.py
+python .\meeting\summary.py
+
+# 接口测试
+```
+curl --location 'http://localhost:8001/introduction' \
+--header 'Content-Type: application/json' \
+--data '{
+    "meeting_text": "日期：2025-08-26 \n 00:05 发言人1: 大家好，我们开始今天的会议\n00:15 发言人2: 我先介绍一下项目进度\n05:30 发言人1: 这个方案需要修改\n12:45 发言人3: 我同意这个观点\n18:20 发言人2: 预算方面可能有问题\n25:10 发言人1: 我们下次会议再讨论细节 啊哈哈"
+  }'
+```
